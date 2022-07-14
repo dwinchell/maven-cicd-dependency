@@ -38,32 +38,6 @@ Your pipeline should use a command like below to deploy the artifact and tag the
 mvn deploy scm:tag -Drevision=$VERSION
 ```
 
-## Recommended Versioning Scheme
-Caveat: It is possible for reasonable people to disagree about the best way to do this. There are probably a few good ways, but there are many bad ways.
-
-For the purposes of these recommendations, a "release" refers to a version of the dependency for which the following are true:
-1. You want to make formally available to a broad audience (like users of an API on another team), OR
-2. You want to continue referring to for a long time. Short lived CI builds might be cleaned up automatically, but we want some artifacts like major releases to stick around for a while.
-
-Recommendations:
-* Use [Semantic Versioning](https://semver.org/) (semver).
-* For "release" versions (as defined above):
-    * Use semver, as always. If needed, use pre-release metadata for things like "beta" and "rc". I.e. "1.1.1-rc1".
-* For "non-release" version (as defined above). This includes cases like "I'm build my feature branch for the 100th time today"
-    * Use the semver convention for pre-release and build metadata
-    * Set the pre-release metadata to the name of your branch, replacing any slashes with '-'
-    * Set the build metadata to the first 7 characters of the git hash.
-    * Example: "1.1.1-main-e5ea2f".
-
-### When to Version:
-
-* Every CI build gets a "non-release" version.
-* A human should decide the major, minor, and micro versions of the non-release version, which should correspond to the next planned release. I.e. if you just released 1.0.0 and aren't planning a minor version release, non-release versions should be 1.0.1-main-A234FD1
-* Record human decisions about the next release version in the pom of the thing being released. TODO: update example pom file to do this.
-* When a "release build" is successful, it should be assigned a "release" version. "1.0.1-main-A234FD1" might become "1.0.1" or "1.0.1-rc1".
-* "Release build" is one that:
-    * Is based on the correct branch. A good way to do this is to only build releases from "main".
-
 ## How it Works
 
 After the deployment, the following things will be true:
@@ -100,4 +74,30 @@ After the deployment, the following things will be true:
   <version>1.1.1</version>
 </dependency>
 ```
+
+## Recommended Versioning Scheme
+Caveat: It is possible for reasonable people to disagree about the best way to do this. There are probably a few good ways, but there are many bad ways.
+
+For the purposes of these recommendations, a "release" refers to a version of the dependency for which the following are true:
+1. You want to make formally available to a broad audience (like users of an API on another team), OR
+2. You want to continue referring to for a long time. Short lived CI builds might be cleaned up automatically, but we want some artifacts like major releases to stick around for a while.
+
+### General Scheme
+* Use [Semantic Versioning](https://semver.org/) (semver).
+* For "release" versions (as defined above):
+    * Use semver, as always. If needed, use pre-release metadata for things like "beta" and "rc". I.e. "1.1.1-rc1".
+* For "non-release" version (as defined above). This includes cases like "I'm build my feature branch for the 100th time today"
+    * Use the semver convention for pre-release and build metadata
+    * Set the pre-release metadata to the name of your branch, replacing any slashes with '-'
+    * Set the build metadata to the first 7 characters of the git hash.
+    * Example: "1.1.1-main-e5ea2f".
+
+### Implementation
+This is one way to do it. Depending on your business processes and level of automation, others may make more sense.
+
+* Every CI build gets a "non-release" version.
+* A human decides the major, minor, and micro versions of the non-release version, which should correspond to the next planned release. I.e. if you just released 1.0.0 and aren't planning a minor version release, non-release versions should be 1.0.1-main-A234FD1. One way to do this is to keep a file in the source code (.next-version) that by convention has the next planned version.
+* When a "release build" is successful, it is assigned a "release" version. "1.0.1-main-A234FD1" might become "1.0.1" or "1.0.1-rc1". The artifact is deployed again, and the source code is tagged again.
+* "Release build" is one that is based on the correct branch. A good way to do this is to only build releases from "main".
+* Optionally, the CI tool can increment the next version by 1 micro version, for examply by editing the .next-version file and committing the change. If appropriate a human can later edit it to increment the minor or major version instead.
 
