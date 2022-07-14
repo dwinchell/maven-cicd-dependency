@@ -20,6 +20,8 @@ git push git@github.com:dwinchell/maven-cicd-dependency.git refs/tags/1.1.1
 
 The SCM plugin gets the git repo URL from pom.xml.
 
+**Note**: If your git repository has multiple artifacts, add the artifact name to the tag by commenting out the appropriate line in pom.xml.
+
 ### Deployment (manual example)
 
 ```shell
